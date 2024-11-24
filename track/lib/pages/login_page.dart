@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../database/user_database.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
 
@@ -13,14 +13,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final UserDatabase db = UserDatabase();
 
   Future<void> login() async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedUsername = prefs.getString('username');
-    final storedPassword = prefs.getString('password');
+    final isValid = await db.validateUser(
+      usernameController.text,
+      passwordController.text,
+    );
 
-    if (storedUsername == usernameController.text &&
-        storedPassword == passwordController.text) {
+    if (isValid) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),

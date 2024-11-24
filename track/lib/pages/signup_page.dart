@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../database/user_database.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -13,14 +13,26 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final UserDatabase db = UserDatabase();
 
   Future<void> signUp() async {
     if (passwordController.text == confirmPasswordController.text) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', usernameController.text);
-      await prefs.setString('password', passwordController.text);
+      final success = await db.registerUser(
+        usernameController.text,
+        passwordController.text,
+      );
 
-      Navigator.pop(context);
+      if (success) {
+        Navigator.pop(context);
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => const AlertDialog(
+            title: Text('Error'),
+            content: Text('Username already exists'),
+          ),
+        );
+      }
     } else {
       showDialog(
         context: context,
