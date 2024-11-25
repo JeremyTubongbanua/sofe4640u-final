@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:track/pages/map_page.dart';
 import '../components/workout_info.dart';
 import '../components/workout_item_card.dart';
 import '../database/user_database.dart';
@@ -145,13 +146,37 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: Colors.pink[100],
-                  ),
-                  child: const Text('Cancel'),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MapPage(
+                                    latitude: widget.workout.latitude,
+                                    longitude: widget.workout.longitude,
+                                    title: widget.workout.id.toString(),
+                                  )),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.pink[100],
+                      ),
+                      child: const Text('View Map'),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.pink[100],
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ],
                 ),
                 ElevatedButton(
                   onPressed: saveWorkout,
