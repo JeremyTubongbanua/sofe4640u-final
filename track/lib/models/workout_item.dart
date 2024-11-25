@@ -2,7 +2,7 @@ import 'package:track/models/exercise.dart';
 import 'package:track/models/set.dart';
 
 class WorkoutItem {
-  final Exercise exercise;
+  Exercise exercise;
   List<Set> sets = [];
 
   WorkoutItem({

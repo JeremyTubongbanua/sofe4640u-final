@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:track/models/exercise.dart';
 import '../database/user_database.dart';
 import '../models/workout.dart';
 import '../models/workout_item.dart';
@@ -86,13 +87,67 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
                 itemCount: _workoutItems.length,
                 itemBuilder: (context, index) {
                   final item = _workoutItems[index];
-                  return ListTile(
-                    title: Text(item.exercise.name),
-                    subtitle: Text('Sets: ${item.sets.length}'),
-                    // trailing: IconButton(
-                    //   icon: const Icon(Icons.add),
-                    //   onPressed: () => navigateToAddSet(item),
-                    // ),
+                  final exercises =
+                      _db.getExercises(); // Fetch the list of exercises
+
+                  return FutureBuilder<List<Exercise>>(
+                    future: exercises,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final exerciseList = snapshot.data ?? [];
+                      final dropdownItems = exerciseList
+                          .map((exercise) => DropdownMenuItem<Exercise>(
+                                value: exercise,
+                                child: Text(exercise.name),
+                              ))
+                          .toList();
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Workout Item',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              const SizedBox(height: 8),
+                              DropdownButton<Exercise>(
+                                isExpanded: true,
+                                value: exerciseList.contains(item.exercise)
+                                    ? item.exercise
+                                    : null,
+                                items: dropdownItems,
+                                onChanged: (selectedExercise) {
+                                  setState(() {
+                                    item.exercise = selectedExercise!;
+                                  });
+                                },
+                                hint: const Text('Select Exercise'),
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Add Set functionality goes here')),
+                                  );
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('Add Set'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -141,62 +196,61 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
 
   Row workoutInfo() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text('Start Time: '),
-                        Expanded(
-                          child: Text(
-                            '${widget.workout.startTime}',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              widget.workout.startTime = DateTime.now();
-                            });
-                          },
-                          child: const Text('NOW'),
-                        ),
-                      ],
+              Row(
+                children: [
+                  const Text('Start Time: '),
+                  Expanded(
+                    child: Text(
+                      '${widget.workout.startTime}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Text('End Time: '),
-                        Expanded(
-                          child: Text(
-                            widget.workout.endTime != null
-                                ? '${widget.workout.endTime}'
-                                : 'Not yet set',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              widget.workout.endTime = DateTime.now();
-                            });
-                          },
-                          child: const Text('NOW'),
-                        ),
-                      ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.workout.startTime = DateTime.now();
+                      });
+                    },
+                    child: const Text('NOW'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Text('End Time: '),
+                  Expanded(
+                    child: Text(
+                      widget.workout.endTime != null
+                          ? '${widget.workout.endTime}'
+                          : 'Not yet set',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Longitude: ${widget.workout.longitude}, Latitude: ${widget.workout.latitude}',
-                    ),
-                  ],
-                ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.workout.endTime = DateTime.now();
+                      });
+                    },
+                    child: const Text('NOW'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Longitude: ${widget.workout.longitude}, Latitude: ${widget.workout.latitude}',
               ),
             ],
-          );
+          ),
+        ),
+      ],
+    );
   }
 }
-
