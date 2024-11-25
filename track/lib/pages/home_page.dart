@@ -6,7 +6,7 @@ import 'define_exercises_page.dart';
 import '../components/nav_bar.dart';
 
 class HomePage extends StatefulWidget {
-  static const appBarTitle = 'Home';
+  static const String appBarTitle = 'Home';
 
   const HomePage({super.key});
 

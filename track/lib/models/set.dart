@@ -1,13 +1,27 @@
 class Set {
-  final int id;
+  final int reps;
   final double weight;
-  final DateTime startTime;
-  final DateTime endTime;
+  final DateTime timestamp;
 
   Set({
-    required this.id,
+    required this.reps,
     required this.weight,
-    required this.startTime,
-    required this.endTime,
+    required this.timestamp,
   });
+
+  factory Set.fromJson(Map<String, dynamic> json) {
+    return Set(
+      reps: json['reps'],
+      weight: json['weight'],
+      timestamp: DateTime.parse(json['timestamp']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reps': reps,
+      'weight': weight,
+      'timestamp': timestamp.toIso8601String(),
+    };
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:track/pages/workouts_page.dart';
 import 'package:track/pages/login_page.dart';
 import 'home_page.dart';
 import 'define_muscles_page.dart';
@@ -22,12 +23,14 @@ class _AppPageState extends State<AppPage> {
     HomePage.appBarTitle,
     DefineMusclesPage.appBarTitle,
     DefineExercisesPage.appBarTitle,
+    WorkoutsPage.appBarTitle,
   ];
 
   static const List<Widget> _pages = [
     HomePage(),
     DefineMusclesPage(),
     DefineExercisesPage(),
+    WorkoutsPage(),
   ];
 
   void _onNavBarTap(int index) {

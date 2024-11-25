@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:track/pages/workouts_page.dart';
 import 'package:track/pages/define_exercises_page.dart';
 import 'package:track/pages/define_muscles_page.dart';
 import 'package:track/pages/home_page.dart';
@@ -12,6 +13,8 @@ class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.black,
       currentIndex: currentIndex,
       onTap: onTap,
       items: const [
@@ -26,6 +29,10 @@ class NavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.list),
           label: DefineExercisesPage.appBarTitle,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          label: WorkoutsPage.appBarTitle,
         ),
       ],
     );
