@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:track/pages/edit_workout_page.dart';
+import 'edit_workout_page.dart';
 import '../database/user_database.dart';
 import '../models/workout.dart';
 
@@ -40,16 +40,6 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
     await loadWorkouts();
   }
 
-  Future<double> _getCurrentLatitude() async {
-    Position position = await _determinePosition();
-    return position.latitude;
-  }
-
-  Future<double> _getCurrentLongitude() async {
-    Position position = await _determinePosition();
-    return position.longitude;
-  }
-
   Future<Position> _determinePosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -80,12 +70,14 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
     });
 
     try {
+      Position position = await _determinePosition();
+
       Workout workout = Workout(
         id: DateTime.now().millisecondsSinceEpoch,
         startTime: DateTime.now(),
-        latitude: await _getCurrentLatitude(),
-        longitude: await _getCurrentLongitude(),
-        workoutItemIds: [],
+        latitude: position.latitude,
+        longitude: position.longitude,
+        workoutItems: [],
         media: [],
       );
 
@@ -112,6 +104,9 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Workouts'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -127,7 +122,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                         strokeWidth: 2,
                       ),
                     )
-                  : const Text('Add Workout Item'),
+                  : const Text('Add New Workout'),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -143,7 +138,8 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                           background: Container(
                             color: Colors.red,
                             alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20),
                             child:
                                 const Icon(Icons.delete, color: Colors.white),
                           ),
@@ -151,14 +147,16 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                             deleteWorkout(workout.id);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Workout ${workout.id} deleted'),
+                                content:
+                                    Text('Workout ${workout.id} deleted'),
                               ),
                             );
                           },
                           child: ListTile(
-                            title: Text('Workout ID: ${workout.id}'),
+                            title: Text(
+                                'Workout on ${formatTimestamp(workout.startTime)}'),
                             subtitle: Text(
-                                'Start: ${formatTimestamp(workout.startTime)}'),
+                                'Exercises: ${workout.workoutItems.length}'),
                             trailing: IconButton(
                               icon: const Icon(Icons.arrow_forward),
                               onPressed: () {

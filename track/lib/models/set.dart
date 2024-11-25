@@ -13,7 +13,9 @@ class Set {
     return Set(
       reps: json['reps'],
       weight: json['weight'],
-      timestamp: DateTime.parse(json['timestamp']),
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'])
+          : null,
     );
   }
 

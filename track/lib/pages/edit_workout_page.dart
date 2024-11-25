@@ -27,11 +27,15 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
 
   Future<void> loadWorkoutItems() async {
     final exercises = await _db.getExercises();
-    final List<WorkoutItem> items = widget.workout.workoutItemIds.map((id) {
+
+    final List<WorkoutItem> items = widget.workout.workoutItems.map((item) {
+      final exercise = exercises.firstWhere((e) => e.id == item.exercise.id);
       return WorkoutItem(
-        exercise: exercises.firstWhere((exercise) => exercise.id == id),
+        exercise: exercise,
+        sets: item.sets,
       );
     }).toList();
+
     setState(() {
       _workoutItems.clear();
       _workoutItems.addAll(items);
@@ -49,16 +53,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
   }
 
   Future<void> saveWorkout() async {
-    final List<Map<String, dynamic>> workoutItemsJson =
-        _workoutItems.map((item) {
-      return {
-        'exerciseId': item.exercise.id,
-        'sets': item.sets.map((set) => set.toJson()).toList(),
-      };
-    }).toList();
-
-    widget.workout.workoutItemIds =
-        _workoutItems.map((item) => item.exercise.id).toList();
+    widget.workout.workoutItems = _workoutItems; // Assign the workout items
 
     final workouts = await _db.getWorkouts();
     final index = workouts.indexWhere((w) => w.id == widget.workout.id);

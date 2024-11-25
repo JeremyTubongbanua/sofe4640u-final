@@ -6,6 +6,7 @@ import '../models/exercise.dart';
 import '../models/muscle.dart';
 
 class UserDatabase {
+  static const String _workoutsKey = 'workouts';
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   Future<void> saveMuscles(List<Muscle> muscles) async {
@@ -25,18 +26,21 @@ class UserDatabase {
   }
 
   Future<List<Workout>> getWorkouts() async {
-    final prefs = await _prefs;
-    final workoutsJson = prefs.getStringList('workouts') ?? [];
-    return workoutsJson
-        .map((json) => Workout.fromJson(jsonDecode(json)))
-        .toList();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? workoutsJson = prefs.getString(_workoutsKey);
+    if (workoutsJson != null) {
+      final List<dynamic> decodedList = jsonDecode(workoutsJson);
+      return decodedList.map((json) => Workout.fromJson(json)).toList();
+    } else {
+      return [];
+    }
   }
 
   Future<void> saveWorkouts(List<Workout> workouts) async {
-    final prefs = await _prefs;
-    final workoutsJson =
-        workouts.map((workout) => jsonEncode(workout.toJson())).toList();
-    await prefs.setStringList('workouts', workoutsJson);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String workoutsJson =
+        jsonEncode(workouts.map((w) => w.toJson()).toList());
+    await prefs.setString(_workoutsKey, workoutsJson);
   }
 
   Future<void> saveExercises(List<Exercise> exercises) async {

@@ -1,10 +1,12 @@
+import 'package:track/models/workout_item.dart';
+
 class Workout {
   int id;
   DateTime startTime;
   DateTime? endTime;
   double latitude;
   double longitude;
-  List<int> workoutItemIds;
+  List<WorkoutItem> workoutItems;
   List<String> media;
 
   Workout({
@@ -12,7 +14,7 @@ class Workout {
     required this.startTime,
     required this.latitude,
     required this.longitude,
-    required this.workoutItemIds,
+    required this.workoutItems,
     required this.media,
     this.endTime,
   });
@@ -21,10 +23,13 @@ class Workout {
     return Workout(
       id: json['id'],
       startTime: DateTime.parse(json['startTime']),
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
+      endTime:
+          json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
       latitude: json['latitude'],
       longitude: json['longitude'],
-      workoutItemIds: List<int>.from(json['workoutItemIds']),
+      workoutItems: (json['workoutItems'] as List<dynamic>)
+          .map((itemJson) => WorkoutItem.fromJson(itemJson))
+          .toList(),
       media: List<String>.from(json['media']),
     );
   }
@@ -36,7 +41,7 @@ class Workout {
       'endTime': endTime?.toIso8601String(),
       'latitude': latitude,
       'longitude': longitude,
-      'workoutItemIds': workoutItemIds,
+      'workoutItems': workoutItems.map((item) => item.toJson()).toList(),
       'media': media,
     };
   }

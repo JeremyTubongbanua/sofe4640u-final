@@ -3,17 +3,19 @@ import 'package:track/models/set.dart';
 
 class WorkoutItem {
   Exercise exercise;
-  List<Set> sets = [];
+  List<Set> sets;
 
   WorkoutItem({
     required this.exercise,
-    this.sets = const [],
-  });
+    List<Set>? sets,
+  }) : sets = sets ?? [];
 
-  factory WorkoutItem.fromJson(Map<String, dynamic> json, Exercise exercise) {
+  factory WorkoutItem.fromJson(Map<String, dynamic> json) {
     return WorkoutItem(
-      exercise: exercise,
-      sets: (json['sets'] as List).map((set) => Set.fromJson(set)).toList(),
+      exercise: Exercise.fromJson(json['exercise']),
+      sets: (json['sets'] as List<dynamic>)
+          .map((setJson) => Set.fromJson(setJson))
+          .toList(),
     );
   }
 
