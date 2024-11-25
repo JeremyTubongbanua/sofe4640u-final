@@ -8,12 +8,16 @@ class WorkoutItemCard extends StatelessWidget {
   final WorkoutItem workoutItem;
   final Function() onAddSet;
   final Function(Exercise?) onExerciseChange;
+  final Function(int setIndex, int reps) onSetRepsChange;
+  final Function(int setIndex, double weight) onSetWeightChange;
 
   const WorkoutItemCard({
     super.key,
     required this.workoutItem,
     required this.onAddSet,
     required this.onExerciseChange,
+    required this.onSetRepsChange,
+    required this.onSetWeightChange,
   });
 
   Future<List<Exercise>> fetchExercises() async {
@@ -23,7 +27,7 @@ class WorkoutItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Set> sets = workoutItem.sets; // Render this list
+    List<Set> sets = workoutItem.sets;
 
     return FutureBuilder<List<Exercise>>(
       future: fetchExercises(),
@@ -66,15 +70,16 @@ class WorkoutItemCard extends StatelessWidget {
                   hint: const Text('Select Exercise'),
                 ),
                 const SizedBox(height: 8),
+                sets.isNotEmpty
+                    ? buildSetsTable(context, sets)
+                    : const Text('No sets added yet.',
+                        style: TextStyle(color: Colors.grey)),
+                const SizedBox(height: 8),
                 ElevatedButton.icon(
                   onPressed: onAddSet,
                   icon: const Icon(Icons.add),
                   label: const Text('Add Set'),
                 ),
-                const SizedBox(height: 8),
-                sets.isNotEmpty
-                    ? buildSetsTable(context, sets)
-                    : const Text('No sets added yet.', style: TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -100,62 +105,67 @@ class WorkoutItemCard extends StatelessWidget {
             2: FlexColumnWidth(2),
           },
           children: [
-            // Header row
             const TableRow(
               children: [
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('# Reps', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text('# Reps',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('Weight', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text('Weight',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('Timestamp', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text('Timestamp',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
-            // Data rows
-            ...sets.map((set) => TableRow(
-                  children: [
-                    editableCell(context, set.reps.toString(), (value) {
-                      set.reps = int.tryParse(value) ?? set.reps;
-                    }),
-                    editableCell(context, set.weight.toString(), (value) {
-                      set.weight = double.tryParse(value) ?? set.weight;
-                    }),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        set.timestamp.toString(),
-                        style: const TextStyle(fontSize: 14),
-                      ),
+            ...sets.asMap().entries.map((entry) {
+              int index = entry.key;
+              Set set = entry.value;
+              return TableRow(
+                children: [
+                  editableCell(
+                    context,
+                    set.reps.toString(),
+                    (value) => onSetRepsChange(
+                        index, int.tryParse(value) ?? set.reps),
+                  ),
+                  editableCell(
+                    context,
+                    set.weight.toString(),
+                    (value) => onSetWeightChange(
+                        index, double.tryParse(value) ?? set.weight),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      set.timestamp?.toString() ?? 'N/A',
+                      style: const TextStyle(fontSize: 14),
                     ),
-                  ],
-                )),
+                  ),
+                ],
+              );
+            }),
           ],
         ),
       ],
     );
   }
 
-  Widget editableCell(BuildContext context, String initialValue, Function(String) onChanged) {
-    final TextEditingController controller = TextEditingController(text: initialValue);
-
+  Widget editableCell(
+      BuildContext context, String initialValue, Function(String) onChanged) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
-        controller: controller,
+        initialValue: initialValue,
         style: const TextStyle(fontSize: 14),
         keyboardType: TextInputType.number,
-        onFieldSubmitted: (value) {
-          onChanged(value);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Value updated!')),
-          );
-        },
+        onChanged: onChanged,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
           isDense: true,

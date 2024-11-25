@@ -1,21 +1,21 @@
 class Workout {
-  final int id;
+  int id;
   DateTime startTime;
   DateTime? endTime;
-  final double latitude;
-  final double longitude;
-  final List<int> workoutItemIds;
-  final List<String> media;
+  double latitude;
+  double longitude;
+  List<int> workoutItemIds;
+  List<String> media;
 
-  Workout(
-      {required this.id,
-      required this.startTime,
-      required this.latitude,
-      required this.longitude,
-      required this.workoutItemIds,
-      required this.media,
-      this.endTime,
-      s});
+  Workout({
+    required this.id,
+    required this.startTime,
+    required this.latitude,
+    required this.longitude,
+    required this.workoutItemIds,
+    required this.media,
+    this.endTime,
+  });
 
   factory Workout.fromJson(Map<String, dynamic> json) {
     return Workout(

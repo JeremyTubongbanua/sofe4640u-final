@@ -48,10 +48,17 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
     });
   }
 
-  Future<void> endWorkout() async {
-    setState(() {
-      widget.workout.endTime = DateTime.now();
-    });
+  Future<void> saveWorkout() async {
+    final List<Map<String, dynamic>> workoutItemsJson =
+        _workoutItems.map((item) {
+      return {
+        'exerciseId': item.exercise.id,
+        'sets': item.sets.map((set) => set.toJson()).toList(),
+      };
+    }).toList();
+
+    widget.workout.workoutItemIds =
+        _workoutItems.map((item) => item.exercise.id).toList();
 
     final workouts = await _db.getWorkouts();
     final index = workouts.indexWhere((w) => w.id == widget.workout.id);
@@ -60,9 +67,14 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
       await _db.saveWorkouts(workouts);
     }
 
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Workout saved successfully!')),
+    );
+
     Navigator.pop(context);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +97,25 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
                   return WorkoutItemCard(
                     workoutItem: item,
                     onAddSet: () {
-                      Set set = Set(reps: 0, weight: 0);
+                      final newSet =
+                          Set(reps: 0, weight: 0, timestamp: DateTime.now());
                       setState(() {
-                        item.sets.add(set);
+                        _workoutItems[index].sets.add(newSet);
                       });
                     },
                     onExerciseChange: (selectedExercise) {
                       setState(() {
                         item.exercise = selectedExercise!;
+                      });
+                    },
+                    onSetRepsChange: (setIndex, reps) {
+                      setState(() {
+                        _workoutItems[index].sets[setIndex].reps = reps;
+                      });
+                    },
+                    onSetWeightChange: (setIndex, weight) {
+                      setState(() {
+                        _workoutItems[index].sets[setIndex].weight = weight;
                       });
                     },
                   );
@@ -124,7 +147,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: endWorkout,
+                  onPressed: saveWorkout,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black,
                     backgroundColor: Colors.pink[100],
