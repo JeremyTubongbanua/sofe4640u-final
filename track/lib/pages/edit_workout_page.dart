@@ -24,7 +24,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
   }
 
   Future<void> loadWorkoutItems() async {
-    final exercises = await _db.getExercises(); // Fetch all exercises
+    final exercises = await _db.getExercises();
     final List<WorkoutItem> items = widget.workout.workoutItemIds.map((id) {
       return WorkoutItem(
         exercise: exercises.firstWhere((exercise) => exercise.id == id),
@@ -36,18 +36,16 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
     });
   }
 
-  Future<void> addWorkoutItem(WorkoutItem item) async {
+  Future<void> addNewWorkoutItem() async {
+    WorkoutItem workoutItem = WorkoutItem(
+      exercise: (await _db.getExercises()).first,
+      sets: [],
+    );
+    final List<WorkoutItem> items = List.from(_workoutItems)..add(workoutItem);
     setState(() {
-      _workoutItems.add(item);
+      _workoutItems.clear();
+      _workoutItems.addAll(items);
     });
-
-    widget.workout.workoutItemIds.add(item.exercise.id);
-    final workouts = await _db.getWorkouts();
-    final index = workouts.indexWhere((w) => w.id == widget.workout.id);
-    if (index != -1) {
-      workouts[index] = widget.workout;
-      await _db.saveWorkouts(workouts);
-    }
   }
 
   Future<void> endWorkout() async {
@@ -65,44 +63,23 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
     Navigator.pop(context);
   }
 
-  void navigateToAddSet(WorkoutItem item) {
-    showDialog(
-      context: context,
-      builder: (context) => AddSetDialog(
-        onAddSet: (Set newSet) {
-          setState(() {
-            item.sets.add(newSet);
-          });
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Workout'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: endWorkout,
-            tooltip: 'End Workout',
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Workout ID: ${widget.workout.id}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            Text('Start Time: ${widget.workout.startTime}'),
-            widget.workout.endTime != null
-                ? Text('End Time: ${widget.workout.endTime}')
-                : const Text('End Time: Not yet set'),
+            const SizedBox(height: 16),
+            workoutInfo(),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -111,88 +88,115 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
                   final item = _workoutItems[index];
                   return ListTile(
                     title: Text(item.exercise.name),
-                    subtitle: Text(
-                      'Sets: ${item.sets.length}',
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () => navigateToAddSet(item),
-                    ),
+                    subtitle: Text('Sets: ${item.sets.length}'),
+                    // trailing: IconButton(
+                    //   icon: const Icon(Icons.add),
+                    //   onPressed: () => navigateToAddSet(item),
+                    // ),
                   );
                 },
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to a page to select exercises (placeholder)
-              },
-              child: const Text('Add Workout Item'),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  addNewWorkoutItem();
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Add Workout Item'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.pink[100],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.pink[100],
+                  ),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: endWorkout,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.pink[100],
+                  ),
+                  child: const Text('Save'),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class AddSetDialog extends StatefulWidget {
-  final Function(Set) onAddSet;
-
-  const AddSetDialog({super.key, required this.onAddSet});
-
-  @override
-  State<AddSetDialog> createState() => _AddSetDialogState();
-}
-
-class _AddSetDialogState extends State<AddSetDialog> {
-  final TextEditingController _repsController = TextEditingController();
-  final TextEditingController _weightController = TextEditingController();
-
-  void _addSet() {
-    final reps = int.tryParse(_repsController.text) ?? 0;
-    final weight = double.tryParse(_weightController.text) ?? 0.0;
-
-    if (reps > 0 && weight > 0) {
-      widget.onAddSet(
-        Set(reps: reps, weight: weight, timestamp: DateTime.now()),
-      );
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter valid values')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add Set'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _repsController,
-            decoration: const InputDecoration(labelText: 'Reps'),
-            keyboardType: TextInputType.number,
-          ),
-          TextField(
-            controller: _weightController,
-            decoration: const InputDecoration(labelText: 'Weight'),
-            keyboardType: TextInputType.number,
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addSet,
-          child: const Text('Add'),
-        ),
-      ],
-    );
+  Row workoutInfo() {
+    return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('Start Time: '),
+                        Expanded(
+                          child: Text(
+                            '${widget.workout.startTime}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              widget.workout.startTime = DateTime.now();
+                            });
+                          },
+                          child: const Text('NOW'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Text('End Time: '),
+                        Expanded(
+                          child: Text(
+                            widget.workout.endTime != null
+                                ? '${widget.workout.endTime}'
+                                : 'Not yet set',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              widget.workout.endTime = DateTime.now();
+                            });
+                          },
+                          child: const Text('NOW'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Longitude: ${widget.workout.longitude}, Latitude: ${widget.workout.latitude}',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
   }
 }
+

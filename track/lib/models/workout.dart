@@ -1,6 +1,6 @@
 class Workout {
   final int id;
-  final DateTime startTime;
+  DateTime startTime;
   DateTime? endTime;
   final double latitude;
   final double longitude;
