@@ -51,10 +51,12 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'TRACK',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+            Image.asset(
+              'assets/logo.png',
+              height: 100,
+              fit: BoxFit.contain,
             ),
+            const SizedBox(height: 16),
             const Text('Fitness Logging App', style: TextStyle(fontSize: 16)),
             const SizedBox(height: 32),
             TextField(
@@ -66,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => login(context),
               child: const Text('Login'),

@@ -54,7 +54,21 @@ class _AppPageState extends State<AppPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_appBarTitles[_currentIndex]),
+        title: Stack(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Image.asset(
+                'assets/logo.png',
+                height: 24, // Adjust as needed
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(_appBarTitles[_currentIndex]),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

@@ -110,7 +110,10 @@ class _DefineExercisesPageState extends State<DefineExercisesPage> {
                 itemBuilder: (context, index) {
                   final exercise = exercises[index];
                   final workedMuscles = exercise.muscleIds
-                      .map((id) => muscles.firstWhere((muscle) => muscle.id == id).name)
+                      .map((id) => muscles
+                          .firstWhere((muscle) => muscle.id == id,
+                              orElse: () => Muscle(id: id, name: 'Unknown'))
+                          .name)
                       .join(', ');
                   return Dismissible(
                     key: Key(exercise.id.toString()),
