@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 
 class HomePage extends StatefulWidget {
   static const String appBarTitle = 'Home';
@@ -17,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   File? _profileMedia;
   String? _name;
   String? _bio;
+  VideoPlayerController? _videoController;
 
   @override
   void initState() {
@@ -32,6 +34,9 @@ class _HomePageState extends State<HomePage> {
       final mediaPath = prefs.getString('profileMedia');
       if (mediaPath != null) {
         _profileMedia = File(mediaPath);
+        if (_profileMedia!.path.endsWith('.mp4')) {
+          _initializeVideo(_profileMedia!.path);
+        }
       }
     });
   }
@@ -52,8 +57,34 @@ class _HomePageState extends State<HomePage> {
     if (pickedFile != null) {
       setState(() {
         _profileMedia = File(pickedFile.path);
+        if (_profileMedia!.path.endsWith('.mp4')) {
+          _initializeVideo(_profileMedia!.path);
+        } else {
+          _disposeVideo();
+        }
       });
     }
+  }
+
+  void _initializeVideo(String path) {
+    _disposeVideo();
+    _videoController = VideoPlayerController.file(File(path))
+      ..setLooping(true)
+      ..initialize().then((_) {
+        setState(() {});
+        _videoController?.play();
+      });
+  }
+
+  void _disposeVideo() {
+    _videoController?.dispose();
+    _videoController = null;
+  }
+
+  @override
+  void dispose() {
+    _disposeVideo();
+    super.dispose();
   }
 
   @override
@@ -90,16 +121,25 @@ class _HomePageState extends State<HomePage> {
                   await _pickMedia(isPhoto: false);
                 }
               },
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage:
-                    _profileMedia != null && _profileMedia!.path.endsWith('.jpg')
-                        ? FileImage(_profileMedia!)
-                        : null,
-                child: _profileMedia == null
-                    ? const Icon(Icons.person, size: 50)
-                    : null,
-              ),
+              child: _profileMedia != null && _profileMedia!.path.endsWith('.mp4')
+                  ? AspectRatio(
+                      aspectRatio:
+                          _videoController?.value.aspectRatio ?? 1.0,
+                      child: _videoController != null &&
+                              _videoController!.value.isInitialized
+                          ? VideoPlayer(_videoController!)
+                          : const Center(child: CircularProgressIndicator()),
+                    )
+                  : CircleAvatar(
+                      radius: 50,
+                      backgroundImage: _profileMedia != null &&
+                              _profileMedia!.path.endsWith('.jpg')
+                          ? FileImage(_profileMedia!)
+                          : null,
+                      child: _profileMedia == null
+                          ? const Icon(Icons.person, size: 50)
+                          : null,
+                    ),
             ),
             const SizedBox(height: 16),
             TextField(
