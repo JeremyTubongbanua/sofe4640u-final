@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:track/pages/edit_workout_item_page.dart';
+import 'package:track/pages/edit_workout_page.dart';
 import '../database/user_database.dart';
 import '../models/workout.dart';
 
@@ -166,7 +166,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        EditWorkoutItemPage(workout: workout),
+                                        EditWorkoutPage(workout: workout),
                                   ),
                                 ).then((_) => loadWorkouts());
                               },

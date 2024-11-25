@@ -44,6 +44,12 @@ class _DefineMusclesPageState extends State<DefineMusclesPage> {
     await loadMuscles();
   }
 
+  Future<void> deleteMuscle(int muscleId) async {
+    muscles.removeWhere((muscle) => muscle.id == muscleId);
+    await db.saveMuscles(muscles);
+    await loadMuscles();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,12 +77,30 @@ class _DefineMusclesPageState extends State<DefineMusclesPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Expanded(
-              child: ListView(
-                children: muscles.map((muscle) {
-                  return ListTile(
-                    title: Text(muscle.name),
+              child: ListView.builder(
+                itemCount: muscles.length,
+                itemBuilder: (context, index) {
+                  final muscle = muscles[index];
+                  return Dismissible(
+                    key: Key(muscle.id.toString()),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    onDismissed: (direction) {
+                      deleteMuscle(muscle.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${muscle.name} deleted')),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(muscle.name),
+                    ),
                   );
-                }).toList(),
+                },
               ),
             ),
           ],

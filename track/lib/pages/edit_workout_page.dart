@@ -4,16 +4,16 @@ import '../models/workout.dart';
 import '../models/workout_item.dart';
 import '../models/set.dart';
 
-class EditWorkoutItemPage extends StatefulWidget {
+class EditWorkoutPage extends StatefulWidget {
   final Workout workout;
 
-  const EditWorkoutItemPage({super.key, required this.workout});
+  const EditWorkoutPage({super.key, required this.workout});
 
   @override
-  State<EditWorkoutItemPage> createState() => _EditWorkoutItemPageState();
+  State<EditWorkoutPage> createState() => _EditWorkoutPageState();
 }
 
-class _EditWorkoutItemPageState extends State<EditWorkoutItemPage> {
+class _EditWorkoutPageState extends State<EditWorkoutPage> {
   final UserDatabase _db = UserDatabase();
   final List<WorkoutItem> _workoutItems = [];
 
