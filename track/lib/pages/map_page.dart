@@ -18,6 +18,13 @@ class MapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: LatLng(latitude ?? 37.7749, longitude ?? -122.4194),
@@ -30,6 +37,7 @@ class MapPage extends StatelessWidget {
             infoWindow: const InfoWindow(title: 'Workout Location'),
           ),
         },
+        onTap: onMapTap,
       ),
     );
   }

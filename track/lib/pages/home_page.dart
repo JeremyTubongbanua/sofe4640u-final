@@ -1,8 +1,14 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
+import '../database/user_database.dart';
+import '../models/workout.dart';
+import '../models/exercise.dart';
+import '../models/set.dart';
+import '../models/workout_item.dart';
 
 class HomePage extends StatefulWidget {
   static const String appBarTitle = 'Home';
@@ -15,10 +21,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ImagePicker _picker = ImagePicker();
+  final UserDatabase _db = UserDatabase();
   File? _profileMedia;
   String? _name;
   String? _bio;
   VideoPlayerController? _videoController;
+  Workout? _generatedWorkout;
 
   @override
   void initState() {
@@ -81,6 +89,46 @@ class _HomePageState extends State<HomePage> {
     _videoController = null;
   }
 
+  Future<void> _generateWorkout() async {
+    final exercises = await _db.getExercises();
+    if (exercises.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No exercises available to generate a workout.')),
+      );
+      return;
+    }
+
+    final random = Random();
+    final workoutItems = List.generate(
+      random.nextInt(4) + 1,
+      (_) {
+      final exercise = exercises[random.nextInt(exercises.length)];
+      final numberOfSets = random.nextInt(3) + 2;
+      final reps = random.nextInt(8) + 8;
+      final sets = List.generate(
+        numberOfSets,
+        (_) => Set(
+        reps: reps,
+        weight: random.nextDouble() * 50,
+        timestamp: DateTime.now(),
+        ),
+      );
+      return WorkoutItem(exercise: exercise, sets: sets);
+      },
+    );
+
+    setState(() {
+      _generatedWorkout = Workout(
+        id: DateTime.now().millisecondsSinceEpoch,
+        startTime: DateTime.now(),
+        latitude: 0.0,
+        longitude: 0.0,
+        workoutItems: workoutItems,
+        media: [],
+      );
+    });
+  }
+
   @override
   void dispose() {
     _disposeVideo();
@@ -123,8 +171,7 @@ class _HomePageState extends State<HomePage> {
               },
               child: _profileMedia != null && _profileMedia!.path.endsWith('.mp4')
                   ? AspectRatio(
-                      aspectRatio:
-                          _videoController?.value.aspectRatio ?? 1.0,
+                      aspectRatio: _videoController?.value.aspectRatio ?? 1.0,
                       child: _videoController != null &&
                               _videoController!.value.isInitialized
                           ? VideoPlayer(_videoController!)
@@ -164,6 +211,31 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Text('Save Profile'),
             ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _generateWorkout,
+              child: const Text('Generate Random Workout'),
+            ),
+            const SizedBox(height: 16),
+            if (_generatedWorkout != null) ...[
+              const Text(
+                'Generated Workout Preview:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _generatedWorkout!.workoutItems.length,
+                  itemBuilder: (context, index) {
+                    final item = _generatedWorkout!.workoutItems[index];
+                    return ListTile(
+                      title: Text(item.exercise.name),
+                      subtitle: Text(
+                          'Sets: ${item.sets.length}, Reps: ${item.sets.map((set) => set.reps).join(", ")}'),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),
