@@ -164,7 +164,7 @@ class WorkoutItemCard extends StatelessWidget {
       child: TextFormField(
         initialValue: initialValue,
         style: const TextStyle(fontSize: 14),
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.text,
         onChanged: onChanged,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),

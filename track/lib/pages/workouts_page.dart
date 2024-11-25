@@ -104,9 +104,6 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workouts'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
