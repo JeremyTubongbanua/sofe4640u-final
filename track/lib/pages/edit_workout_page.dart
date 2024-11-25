@@ -53,7 +53,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
   }
 
   Future<void> saveWorkout() async {
-    widget.workout.workoutItems = _workoutItems; // Assign the workout items
+    widget.workout.workoutItems = _workoutItems;
 
     final workouts = await _db.getWorkouts();
     final index = workouts.indexWhere((w) => w.id == widget.workout.id);
@@ -82,7 +82,19 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            WorkoutInfo(workout: widget.workout),
+            WorkoutInfo(
+              workout: widget.workout,
+              onStartTimeNow: () {
+                setState(() {
+                  widget.workout.startTime = DateTime.now();
+                });
+              },
+              onEndTimeNow: () {
+                setState(() {
+                  widget.workout.endTime = DateTime.now();
+                });
+              },
+            ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
