@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:track/pages/app_page.dart';
 import '../database/user_database.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
+  static const String routeName = '/';
+
   const LoginPage({super.key});
 
   @override
@@ -15,17 +19,18 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   final UserDatabase db = UserDatabase();
 
-  Future<void> login() async {
+  Future<void> login(BuildContext context) async {
     final isValid = await db.validateUser(
       usernameController.text,
       passwordController.text,
     );
 
     if (isValid) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('loggedInUser', usernameController.text);
+
+      Navigator.pushReplacementNamed(context, AppPage.routeName);
     } else {
       showDialog(
         context: context,
@@ -61,19 +66,15 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
-            TextButton(
-              onPressed: () {}, // Add forgot password functionality here
-              child: const Text('Forgot password?'),
-            ),
             ElevatedButton(
-              onPressed: login,
+              onPressed: () => login(context),
               child: const Text('Login'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(builder: (context) => const SignUpPage()),
+                  SignUpPage.routeName,
                 );
               },
               child: const Text('Sign Up'),

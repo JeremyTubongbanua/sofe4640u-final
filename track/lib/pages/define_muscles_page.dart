@@ -3,6 +3,8 @@ import '../database/user_database.dart';
 import '../models/muscle.dart';
 
 class DefineMusclesPage extends StatefulWidget {
+  static const String appBarTitle = 'Define Muscles';
+
   const DefineMusclesPage({super.key});
 
   @override
@@ -45,7 +47,6 @@ class _DefineMusclesPageState extends State<DefineMusclesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Define Muscles')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

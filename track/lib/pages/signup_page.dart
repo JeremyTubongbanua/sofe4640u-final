@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../database/user_database.dart';
 
 class SignUpPage extends StatefulWidget {
+  static const String routeName = '/signup';
+
   const SignUpPage({super.key});
 
   @override
@@ -15,7 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
       TextEditingController();
   final UserDatabase db = UserDatabase();
 
-  Future<void> signUp() async {
+  Future<void> signUp(BuildContext context) async {
     if (passwordController.text == confirmPasswordController.text) {
       final success = await db.registerUser(
         usernameController.text,
@@ -77,7 +79,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   const InputDecoration(labelText: 'Confirm Your Password'),
             ),
             ElevatedButton(
-              onPressed: signUp,
+              onPressed: () => signUp(context),
               child: const Text('Sign Up'),
             ),
           ],
