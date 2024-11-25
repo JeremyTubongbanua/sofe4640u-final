@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:track/database/user_database.dart';
+import '../database/user_database.dart';
 import '../models/exercise.dart';
 import '../models/set.dart';
 import '../models/workout_item.dart';
 
-class WorkoutItemCard extends StatelessWidget {
+class WorkoutItemCard extends StatefulWidget {
   final WorkoutItem workoutItem;
   final Function() onAddSet;
   final Function(Exercise?) onExerciseChange;
@@ -20,6 +20,60 @@ class WorkoutItemCard extends StatelessWidget {
     required this.onSetWeightChange,
   });
 
+  @override
+  _WorkoutItemCardState createState() => _WorkoutItemCardState();
+}
+
+class _WorkoutItemCardState extends State<WorkoutItemCard> {
+  late Future<List<Exercise>> _exercisesFuture;
+  final Map<int, TextEditingController> _repsControllers = {};
+  final Map<int, TextEditingController> _weightControllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _exercisesFuture = fetchExercises();
+
+    // Initialize controllers for existing sets
+    for (int i = 0; i < widget.workoutItem.sets.length; i++) {
+      _repsControllers[i] = TextEditingController(
+          text: widget.workoutItem.sets[i].reps.toString());
+      _weightControllers[i] = TextEditingController(
+          text: widget.workoutItem.sets[i].weight.toString());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant WorkoutItemCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Reinitialize controllers if the sets length has changed
+    if (widget.workoutItem.sets.length != oldWidget.workoutItem.sets.length) {
+      for (int i = 0; i < widget.workoutItem.sets.length; i++) {
+        _repsControllers.putIfAbsent(
+            i,
+            () => TextEditingController(
+                text: widget.workoutItem.sets[i].reps.toString()));
+        _weightControllers.putIfAbsent(
+            i,
+            () => TextEditingController(
+                text: widget.workoutItem.sets[i].weight.toString()));
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dispose of all controllers
+    for (var controller in _repsControllers.values) {
+      controller.dispose();
+    }
+    for (var controller in _weightControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   Future<List<Exercise>> fetchExercises() async {
     final UserDatabase db = UserDatabase();
     return db.getExercises();
@@ -27,10 +81,10 @@ class WorkoutItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Set> sets = workoutItem.sets;
+    List<Set> sets = widget.workoutItem.sets;
 
     return FutureBuilder<List<Exercise>>(
-      future: fetchExercises(),
+      future: _exercisesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -45,7 +99,7 @@ class WorkoutItemCard extends StatelessWidget {
             .toList();
 
         Exercise? selectedExercise = exerciseList.firstWhere(
-          (exercise) => exercise.id == workoutItem.exercise.id,
+          (exercise) => exercise.id == widget.workoutItem.exercise.id,
         );
 
         return Card(
@@ -65,7 +119,7 @@ class WorkoutItemCard extends StatelessWidget {
                   value: selectedExercise,
                   items: dropdownItems,
                   onChanged: (Exercise? selected) {
-                    onExerciseChange(selected);
+                    widget.onExerciseChange(selected);
                   },
                   hint: const Text('Select Exercise'),
                 ),
@@ -76,7 +130,10 @@ class WorkoutItemCard extends StatelessWidget {
                         style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 8),
                 ElevatedButton.icon(
-                  onPressed: onAddSet,
+                  onPressed: () {
+                    widget.onAddSet();
+                    setState(() {});
+                  },
                   icon: const Icon(Icons.add),
                   label: const Text('Add Set'),
                 ),
@@ -127,19 +184,34 @@ class WorkoutItemCard extends StatelessWidget {
             ...sets.asMap().entries.map((entry) {
               int index = entry.key;
               Set set = entry.value;
+
+              // Initialize controllers if they don't exist
+              _repsControllers.putIfAbsent(
+                index,
+                () => TextEditingController(text: set.reps.toString()),
+              );
+              _weightControllers.putIfAbsent(
+                index,
+                () => TextEditingController(text: set.weight.toString()),
+              );
+
               return TableRow(
                 children: [
                   editableCell(
                     context,
-                    set.reps.toString(),
-                    (value) => onSetRepsChange(
-                        index, int.tryParse(value) ?? set.reps),
+                    _repsControllers[index]!,
+                    (value) {
+                      int reps = int.tryParse(value) ?? set.reps;
+                      widget.onSetRepsChange(index, reps);
+                    },
                   ),
                   editableCell(
                     context,
-                    set.weight.toString(),
-                    (value) => onSetWeightChange(
-                        index, double.tryParse(value) ?? set.weight),
+                    _weightControllers[index]!,
+                    (value) {
+                      double weight = double.tryParse(value) ?? set.weight;
+                      widget.onSetWeightChange(index, weight);
+                    },
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -158,14 +230,17 @@ class WorkoutItemCard extends StatelessWidget {
   }
 
   Widget editableCell(
-      BuildContext context, String initialValue, Function(String) onChanged) {
+    BuildContext context,
+    TextEditingController controller,
+    Function(String) onFieldSubmitted,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
-        initialValue: initialValue,
+        controller: controller,
         style: const TextStyle(fontSize: 14),
-        keyboardType: TextInputType.text,
-        onChanged: onChanged,
+        keyboardType: TextInputType.number,
+        onFieldSubmitted: onFieldSubmitted,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
           isDense: true,
