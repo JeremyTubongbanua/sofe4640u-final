@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:track/models/exercise.dart';
+import '../components/workout_info.dart';
+import '../components/workout_item_card.dart';
 import '../database/user_database.dart';
 import '../models/workout.dart';
 import '../models/workout_item.dart';
@@ -42,10 +43,8 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
       exercise: (await _db.getExercises()).first,
       sets: [],
     );
-    final List<WorkoutItem> items = List.from(_workoutItems)..add(workoutItem);
     setState(() {
-      _workoutItems.clear();
-      _workoutItems.addAll(items);
+      _workoutItems.add(workoutItem);
     });
   }
 
@@ -64,6 +63,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
     Navigator.pop(context);
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,78 +75,25 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Workout ID: ${widget.workout.id}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            workoutInfo(),
+            WorkoutInfo(workout: widget.workout),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 itemCount: _workoutItems.length,
                 itemBuilder: (context, index) {
                   final item = _workoutItems[index];
-                  final exercises =
-                      _db.getExercises(); // Fetch the list of exercises
-
-                  return FutureBuilder<List<Exercise>>(
-                    future: exercises,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      final exerciseList = snapshot.data ?? [];
-                      final dropdownItems = exerciseList
-                          .map((exercise) => DropdownMenuItem<Exercise>(
-                                value: exercise,
-                                child: Text(exercise.name),
-                              ))
-                          .toList();
-
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Workout Item',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              const SizedBox(height: 8),
-                              DropdownButton<Exercise>(
-                                isExpanded: true,
-                                value: exerciseList.contains(item.exercise)
-                                    ? item.exercise
-                                    : null,
-                                items: dropdownItems,
-                                onChanged: (selectedExercise) {
-                                  setState(() {
-                                    item.exercise = selectedExercise!;
-                                  });
-                                },
-                                hint: const Text('Select Exercise'),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Add Set functionality goes here')),
-                                  );
-                                },
-                                icon: const Icon(Icons.add),
-                                label: const Text('Add Set'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                  return WorkoutItemCard(
+                    workoutItem: item,
+                    onAddSet: () {
+                      Set set = Set(reps: 0, weight: 0);
+                      setState(() {
+                        item.sets.add(set);
+                      });
+                    },
+                    onExerciseChange: (selectedExercise) {
+                      setState(() {
+                        item.exercise = selectedExercise!;
+                      });
                     },
                   );
                 },
@@ -155,9 +102,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  addNewWorkoutItem();
-                },
+                onPressed: addNewWorkoutItem,
                 icon: const Icon(Icons.add),
                 label: const Text('Add Workout Item'),
                 style: ElevatedButton.styleFrom(
@@ -191,66 +136,6 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Row workoutInfo() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Text('Start Time: '),
-                  Expanded(
-                    child: Text(
-                      '${widget.workout.startTime}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        widget.workout.startTime = DateTime.now();
-                      });
-                    },
-                    child: const Text('NOW'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Text('End Time: '),
-                  Expanded(
-                    child: Text(
-                      widget.workout.endTime != null
-                          ? '${widget.workout.endTime}'
-                          : 'Not yet set',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        widget.workout.endTime = DateTime.now();
-                      });
-                    },
-                    child: const Text('NOW'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Longitude: ${widget.workout.longitude}, Latitude: ${widget.workout.latitude}',
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

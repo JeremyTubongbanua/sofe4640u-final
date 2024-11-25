@@ -1,12 +1,12 @@
 class Set {
-  final int reps;
-  final double weight;
-  final DateTime timestamp;
+  int reps;
+  double weight;
+  DateTime? timestamp;
 
   Set({
-    required this.reps,
-    required this.weight,
-    required this.timestamp,
+    this.reps = 0,
+    this.weight = 0,
+    this.timestamp,
   });
 
   factory Set.fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,7 @@ class Set {
     return {
       'reps': reps,
       'weight': weight,
-      'timestamp': timestamp.toIso8601String(),
+      'timestamp': timestamp?.toIso8601String(),
     };
   }
 }
