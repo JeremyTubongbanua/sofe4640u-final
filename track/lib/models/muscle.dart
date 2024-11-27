@@ -1,3 +1,5 @@
+// Model for muscle
+// just a name e.g. "Biceps"
 class Muscle {
   final int id;
   final String name;

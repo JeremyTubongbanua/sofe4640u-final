@@ -4,6 +4,7 @@ import '../models/exercise.dart';
 import '../models/set.dart';
 import '../models/workout_item.dart';
 
+// represents the workout item card
 class WorkoutItemCard extends StatefulWidget {
   final WorkoutItem workoutItem;
   final Function() onAddSet;
@@ -29,6 +30,7 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
   final Map<int, TextEditingController> _repsControllers = {};
   final Map<int, TextEditingController> _weightControllers = {};
 
+  // initialize the state
   @override
   void initState() {
     super.initState();
@@ -43,6 +45,7 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
     }
   }
 
+  // update the widget
   @override
   void didUpdateWidget(covariant WorkoutItemCard oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -62,9 +65,9 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
     }
   }
 
+  // Dispose of all controllers
   @override
   void dispose() {
-    // Dispose of all controllers
     for (var controller in _repsControllers.values) {
       controller.dispose();
     }
@@ -79,6 +82,7 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
     return db.getExercises();
   }
 
+  // build the widget
   @override
   Widget build(BuildContext context) {
     List<Set> sets = widget.workoutItem.sets;
@@ -145,6 +149,7 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
     );
   }
 
+  // build the sets table
   Widget buildSetsTable(BuildContext context, List<Set> sets) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +190,6 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
               int index = entry.key;
               Set set = entry.value;
 
-              // Initialize controllers if they don't exist
               _repsControllers.putIfAbsent(
                 index,
                 () => TextEditingController(text: set.reps.toString()),
@@ -229,6 +233,7 @@ class _WorkoutItemCardState extends State<WorkoutItemCard> {
     );
   }
 
+  // build the editable cell
   Widget editableCell(
     BuildContext context,
     TextEditingController controller,

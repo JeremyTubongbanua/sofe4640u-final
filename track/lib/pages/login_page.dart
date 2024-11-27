@@ -5,6 +5,7 @@ import '../database/user_database.dart';
 import 'signup_page.dart';
 import 'home_page.dart';
 
+// this page is for logging in
 class LoginPage extends StatefulWidget {
   static const String routeName = '/';
 

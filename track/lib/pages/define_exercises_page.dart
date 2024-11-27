@@ -3,6 +3,7 @@ import '../database/user_database.dart';
 import '../models/exercise.dart';
 import '../models/muscle.dart';
 
+// here is wher you define exercises
 class DefineExercisesPage extends StatefulWidget {
   static const String appBarTitle = 'Define Exercises';
 

@@ -5,6 +5,7 @@ import 'edit_workout_page.dart';
 import '../database/user_database.dart';
 import '../models/workout.dart';
 
+// represents the workouts page
 class WorkoutsPage extends StatefulWidget {
   static const String appBarTitle = 'Workouts';
 

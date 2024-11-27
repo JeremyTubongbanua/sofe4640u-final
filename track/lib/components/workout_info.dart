@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/workout.dart';
 
+// represents the workout information
 class WorkoutInfo extends StatelessWidget {
   final Workout workout;
   final VoidCallback onStartTimeNow;

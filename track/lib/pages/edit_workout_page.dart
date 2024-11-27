@@ -7,6 +7,7 @@ import '../models/workout.dart';
 import '../models/workout_item.dart';
 import '../models/set.dart';
 
+// this page is opened when you want to edit a workout
 class EditWorkoutPage extends StatefulWidget {
   final Workout workout;
 

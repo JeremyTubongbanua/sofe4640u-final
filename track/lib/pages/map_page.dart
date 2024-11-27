@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+// this page is opened when you want to view a map
 class MapPage extends StatelessWidget {
   final String title;
   final Function(LatLng)? onMapTap;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../database/user_database.dart';
 import '../models/muscle.dart';
 
+// this page is for defining muscles
 class DefineMusclesPage extends StatefulWidget {
   static const String appBarTitle = 'Define Muscles';
 

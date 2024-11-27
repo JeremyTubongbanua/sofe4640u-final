@@ -9,6 +9,7 @@ class UserDatabase {
   static const String _workoutsKey = 'workouts';
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  // saves a list of muscles to shared preferences
   Future<void> saveMuscles(List<Muscle> muscles) async {
     final prefs = await _prefs;
     List<String> muscleList =
@@ -16,6 +17,7 @@ class UserDatabase {
     await prefs.setStringList('muscles', muscleList);
   }
 
+  // retrieves the list of muscles from shared preferences
   Future<List<Muscle>> getMuscles() async {
     final prefs = await _prefs;
     List<String>? muscleList = prefs.getStringList('muscles');
@@ -25,6 +27,7 @@ class UserDatabase {
         .toList();
   }
 
+  // retrieves the list of workouts from shared preferences
   Future<List<Workout>> getWorkouts() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? workoutsJson = prefs.getString(_workoutsKey);
@@ -36,6 +39,7 @@ class UserDatabase {
     }
   }
 
+  // saves a list of workouts to shared preferences
   Future<void> saveWorkouts(List<Workout> workouts) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String workoutsJson =
@@ -43,6 +47,7 @@ class UserDatabase {
     await prefs.setString(_workoutsKey, workoutsJson);
   }
 
+  // saves a list of exercises to shared preferences
   Future<void> saveExercises(List<Exercise> exercises) async {
     final prefs = await _prefs;
     List<String> exerciseList =
@@ -50,6 +55,7 @@ class UserDatabase {
     await prefs.setStringList('exercises', exerciseList);
   }
 
+  // retrieves the list of exercises from shared preferences
   Future<List<Exercise>> getExercises() async {
     final prefs = await _prefs;
     try {
@@ -64,11 +70,13 @@ class UserDatabase {
     }
   }
 
+  // hashes a given password using sha256
   Future<String> hashPassword(String password) async {
     final bytes = utf8.encode(password);
     return sha256.convert(bytes).toString();
   }
 
+  // registers a new user with a hashed password and stores it in shared preferences
   Future<bool> registerUser(String username, String password) async {
     final prefs = await _prefs;
     final users = prefs.getStringList('users') ?? [];
@@ -84,6 +92,7 @@ class UserDatabase {
     return true;
   }
 
+  // validates a user's credentials by comparing hashed passwords
   Future<bool> validateUser(String username, String password) async {
     final prefs = await _prefs;
     final hashedPassword = prefs.getString('password_$username');

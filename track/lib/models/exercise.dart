@@ -1,3 +1,5 @@
+// Exercise model
+// consists of an id, name, and a list of muscleIds
 class Exercise {
   final int id;
   final String name;

@@ -10,6 +10,7 @@ import '../models/exercise.dart';
 import '../models/set.dart';
 import '../models/workout_item.dart';
 
+// represents the home page
 class HomePage extends StatefulWidget {
   static const String appBarTitle = 'Home';
 
@@ -29,11 +30,13 @@ class _HomePageState extends State<HomePage> {
   Workout? _generatedWorkout;
 
   @override
+// handles the initState functionality
   void initState() {
     super.initState();
     _loadUserProfile();
   }
 
+// handles the _loadUserProfile functionality
   Future<void> _loadUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -49,6 +52,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+// handles the _saveUserProfile functionality
   Future<void> _saveUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('name', _name ?? '');
@@ -58,6 +62,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+// handles the _pickMedia functionality
   Future<void> _pickMedia({bool isPhoto = true}) async {
     final pickedFile = await (isPhoto
         ? _picker.pickImage(source: ImageSource.gallery)
@@ -74,6 +79,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+// handles the _initializeVideo functionality
   void _initializeVideo(String path) {
     _disposeVideo();
     _videoController = VideoPlayerController.file(File(path))
@@ -84,11 +90,13 @@ class _HomePageState extends State<HomePage> {
       });
   }
 
+// handles the _disposeVideo functionality
   void _disposeVideo() {
     _videoController?.dispose();
     _videoController = null;
   }
 
+// handles the _generateWorkout functionality
   Future<void> _generateWorkout() async {
     final exercises = await _db.getExercises();
     if (exercises.isEmpty) {
@@ -130,12 +138,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+// handles the dispose functionality
   void dispose() {
     _disposeVideo();
     super.dispose();
   }
 
   @override
+// handles the build functionality
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(

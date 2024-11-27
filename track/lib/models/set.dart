@@ -1,3 +1,5 @@
+// Purpose: Model for a set of an workout item
+// e.g. 3 sets of 10 reps with 50kg
 class Set {
   int reps;
   double weight;

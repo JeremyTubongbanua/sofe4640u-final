@@ -1,5 +1,8 @@
 import 'package:track/models/workout_item.dart';
 
+// represents a workout
+// consists of a start time, end time, location, workout items and media
+// workout items are instances of WorkoutItem done during the workout
 class Workout {
   int id;
   DateTime startTime;

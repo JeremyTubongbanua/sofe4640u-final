@@ -1,6 +1,7 @@
 import 'package:track/models/exercise.dart';
 import 'package:track/models/set.dart';
 
+// represents one item as part of a workout
 class WorkoutItem {
   Exercise exercise;
   List<Set> sets;

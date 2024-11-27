@@ -14,6 +14,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+// popuylate with dummy muscles
 Future<void> populateMuscles() async {
   final db = UserDatabase();
   final prefs = await SharedPreferences.getInstance();
@@ -29,6 +30,7 @@ Future<void> populateMuscles() async {
   }
 }
 
+// populate with dummy exercises
 Future<void> populateExercises() async {
   final db = UserDatabase();
   final prefs = await SharedPreferences.getInstance();

@@ -7,6 +7,11 @@ import 'define_muscles_page.dart';
 import 'define_exercises_page.dart';
 import '../components/nav_bar.dart';
 
+// holds several pages:
+// - Home
+// - Define Muscles
+// - Define Exercises
+// - Workouts
 class AppPage extends StatefulWidget {
   static const String routeName = '/app';
 

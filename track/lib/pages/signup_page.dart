@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../database/user_database.dart';
 
+// represents the sign up page
 class SignUpPage extends StatefulWidget {
   static const String routeName = '/signup';
 
